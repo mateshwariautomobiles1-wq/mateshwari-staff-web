@@ -20,9 +20,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Unzip web app
         run: |
-          ZIP=$(ls *.zip | head -1)
+          ZIP=$(git log -1 --name-only --pretty=format: -- '*.zip' | grep -v '^
+          echo "Using $ZIP"
+          unzip -q -o "$ZIP" -d tmp
+          IDX=$(find tmp -name index.html | head -1)
+          mkdir site
+          cp -r "$(dirname "$IDX")"/. site/
+          touch site/.nojekyll
+          ls -la site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
+ | head -1)
+          if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then ZIP=$(ls *.zip | head -1); fi
           echo "Using $ZIP"
           unzip -q -o "$ZIP" -d tmp
           IDX=$(find tmp -name index.html | head -1)
