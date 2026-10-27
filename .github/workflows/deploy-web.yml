@@ -22,31 +22,17 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Unzip web app
+      - name: Unzip latest web app
         run: |
-          ZIP=$(git log -1 --name-only --pretty=format: -- '*.zip' | grep -v '^
+          ZIP=$(git log -1 --name-only --pretty=format: -- "*.zip" | grep -v "^$" | head -1)
+          if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then ZIP=$(ls -t *.zip | head -1); fi
           echo "Using $ZIP"
           unzip -q -o "$ZIP" -d tmp
           IDX=$(find tmp -name index.html | head -1)
           mkdir site
           cp -r "$(dirname "$IDX")"/. site/
           touch site/.nojekyll
-          ls -la site
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-      - id: deployment
-        uses: actions/deploy-pages@v4
- | head -1)
-          if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then ZIP=$(ls *.zip | head -1); fi
-          echo "Using $ZIP"
-          unzip -q -o "$ZIP" -d tmp
-          IDX=$(find tmp -name index.html | head -1)
-          mkdir site
-          cp -r "$(dirname "$IDX")"/. site/
-          touch site/.nojekyll
-          ls -la site
+          ls -la site site/js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
