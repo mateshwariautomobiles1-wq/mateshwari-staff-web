@@ -28,7 +28,7 @@ jobs:
           if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then ZIP=$(ls -t *.zip | head -1); fi
           echo "Using $ZIP"
           unzip -q -o "$ZIP" -d tmp
-          IDX=$(find tmp -name index.html | head -1)
+          IDX=$(find tmp -name index.html | awk '{print length($0), $0}' | sort -n | head -1 | cut -d" " -f2-)
           mkdir site
           cp -r "$(dirname "$IDX")"/. site/
           touch site/.nojekyll
